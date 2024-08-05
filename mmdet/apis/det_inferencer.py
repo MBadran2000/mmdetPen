@@ -475,6 +475,8 @@ class DetInferencer(BaseInferencer):
             if isinstance(single_input, str):
                 img_bytes = mmengine.fileio.get(single_input)
                 img = mmcv.imfrombytes(img_bytes)
+                if img is None:
+                    img = mmcv.imfrombytes(img_bytes, backend='pillow')
                 img = img[:, :, ::-1]
                 img_name = osp.basename(single_input)
             elif isinstance(single_input, np.ndarray):
