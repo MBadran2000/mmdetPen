@@ -13,6 +13,21 @@ from torch.utils.cpp_extension import (BuildExtension, CppExtension,
                                        CUDAExtension)
 
 
+def drop_privileges(uid_name='user'):
+    import pwd
+    import os
+
+    try:
+        running_uid = pwd.getpwnam(uid_name).pw_uid
+        os.setuid(running_uid)
+    except KeyError:
+        print(f'User {uid_name} does not exist')
+        sys.exit(1)
+    except PermissionError as e:
+        print(f'PermissionError: {e}')
+        sys.exit(1)
+
+
 def readme():
     with open('README.md', encoding='utf-8') as f:
         content = f.read()
@@ -186,6 +201,7 @@ def add_mim_extension():
 
 
 if __name__ == '__main__':
+    drop_privileges('user')
     add_mim_extension()
     setup(
         name='mmdet',
