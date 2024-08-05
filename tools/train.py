@@ -8,8 +8,8 @@ from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
 
 from mmdet.utils import setup_cache_size_limit_of_dynamo
-
-
+# import sys
+# sys.path.append('/scratch/dr/m.badran/pengwin/Nawar/mmdetection/tools')
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     parser.add_argument('config', help='train config file path')

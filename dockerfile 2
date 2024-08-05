@@ -1,0 +1,49 @@
+# FROM docker.aic.gov.eg/dr/python:3.9
+From python:3.9
+# Install Python dependencies
+
+RUN apt-get update && apt-get install -y \
+    vim g++  git build-essential openssh-server tmux htop ffmpeg libsm6 libxext6  default-jdk libpq-dev gdal-bin libgdal-dev \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
+ 
+WORKDIR /home/setup
+COPY ./req.txt /home/setup
+
+RUN pip install -r req.txt
+
+RUN pip install GDAL=="$(gdal-config --version).*"
+RUN pip install torch==1.12.1+cu116 torchaudio==0.12.1+cu116 torchvision==0.13.1+cu116 -f https://download.pytorch.org/whl/torch_stable.html 
+
+WORKDIR /home
+RUN pip install -U openmim
+RUN pip install mmcv==2.0.0
+RUN pip install mmengine==0.10.4
+RUN git clone https://github.com/open-mmlab/mmdetection.git
+WORKDIR /home/mmdetection
+RUN pip install -v -e .
+## important fix
+#RUN mim install mmcv==2.1.0 -f https://download.openmmlab.com/mmcv/dist/cu118/torch2.30/index.html --no-cache-dir
+
+WORKDIR /home
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config # buildkit
+RUN sed -i '/#force_color_prompt=yes/s/^#//g' ~/.bashrc # buildkit
+RUN echo 'root:root' | chpasswd # buildkit
+RUN service ssh restart # buildkit
+EXPOSE 7860
+
+# RUN apt-get update && apt-get install -yq libjemalloc2 \
+#        && apt-get clean autoclean && \
+#        rm -rf /var/lib/apt/lists/*
+# ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+# RUN chmod +x /usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+
+# ENV LRU_CACHE_CAPACITY=1
+
+# EXPOSE 8080 8081 8082
+# EXPOSE 8443 8444 8445
+# COPY ./setup /home/setup
+# COPY ./setup/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# RUN chmod +x /usr/local/bin/entrypoint.sh
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
