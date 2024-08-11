@@ -18,7 +18,6 @@ from mmengine.structures import BaseDataElement
 from mmengine.evaluator import BaseMetric
 
 
-
         
 @METRICS.register_module()
 class PengwinMetric(BaseMetric):
@@ -28,10 +27,6 @@ class PengwinMetric(BaseMetric):
     def process(self, data_batch, data_samples):
         # flag = True
         for output in data_samples:
-            # if flag:
-            #     flag = False
-            #     continue
-            # flag = True
             gt = self.decode_pred_instances(pred_instances = output['gt_instances'])
             gt['scores'] = np.ones_like(gt['labels'])
             mask_gt = self.json_to_tif(gt)
